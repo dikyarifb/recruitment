@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <div class="container">
-    <h1><i class="fa-solid fa-rocket"></i>Join Arsa Indonesia</h1>
+    <h1><i class="fa-solid fa-rocket"></i>Join ARSA Indonesia</h1>
     <p>We deliver professional services that support businesses and communities. Be part of a team that creates real-world impact every day.</p>
     <button class="btn btn-primary cta-btn" onclick="scrollToSection()">
         <i class="fa-solid fa-briefcase"></i> Explore Careers
