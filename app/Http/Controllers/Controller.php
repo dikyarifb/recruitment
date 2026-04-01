@@ -18,9 +18,8 @@ class Controller extends BaseController
         $file_ext = $file->getClientOriginalExtension();
         $hash_microtime = substr(md5(microtime()), 15, 5);
         $file_file_name = Str::slug($file_name)."_".$hash_microtime.".".$file_ext;
-        $storage_disk = Config('constant.storage_disk');
         
-        $save_avatar = \Storage::disk($storage_disk)->putFileAs($path, $file, $file_file_name, 'public');
+        $save_avatar = \Storage::disk('s3')->putFileAs($path, $file, $file_file_name, 'public');
         return $file_file_name;
     }
 }
