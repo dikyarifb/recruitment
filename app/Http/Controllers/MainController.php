@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SiteEmployeeRequestStructure as Job;
 use App\Models\Recruitment;
+use App\Models\RecruitmentTest as Test;
+use App\Models\Role;
 use DB;
 
 class MainController extends Controller
@@ -13,8 +15,10 @@ class MainController extends Controller
     public function index(Request $request){
         $data['jobs'] = Job::available()->select('position',  DB::raw('COUNT(*) as total'))->groupBy('position')->get();
         // return $data;
-        // $data['name'] = 'Rudi';
         // $data['position'] = 'Cleaning Associate';
+        // session()->forget('quiz_started');
+        // session()->forget('quiz_disc_started');
+        // $request->session()->forget('quiz_started');
         return view('welcome', $data);
     }
     public function store(Request $request){
@@ -38,6 +42,7 @@ class MainController extends Controller
         ];
 
         $this->validate($request, $rules);
+        // --check existing
         $exist = Recruitment::where('nik', $request->nik)->where('date_applied', date('Y-m-d'))->where('position', $request->position)->first();
         if($exist){
             return back()->withErrors(
@@ -46,7 +51,7 @@ class MainController extends Controller
                 ]
             )->withInput();
         }
-        // store
+        // --store
         $res = new Recruitment;
         $res->name = $request->name;
         $res->email = $request->email;
@@ -62,6 +67,129 @@ class MainController extends Controller
         $res->cv = $this->store_file($request->file('cv'), 'recruitment/cv');
         $res->save();
         // cv
-        return back()->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+        // check role level
+        $level = 0;
+        $role = Role::where('name', $res->position)->first();
+        if($role){
+            $level = $role->level;
+        }
+        $data['with_disc'] = $level > 0 ? 1 : 0;
+        $data['datas'] = Test::where('type', 'iq')->get();
+        $data['id'] = $res->id;
+        return view('iq', $data)->with('message', '🎉 Lamaran berhasil dikirim! Silahkan isi pertanyaan singkat dibawah ini.');
+        // navigate to quiz
+        // return back()
+    }
+    public function store_iq(Request $request){
+        // return $request->all();
+        $score = 0;
+        $quiz_count = 0;
+        $final_score = 0;
+        $arrays =[];
+        // if($quiz_count > 0){
+            foreach ($request->all() as $key => $answer) {
+                array_push($arrays, $key);
+                if(str_contains($key, "quiz-")){
+                    $quiz_count++;
+                    $number = (int) str_replace('quiz-', '', $key);
+                    if(Test::find($number)->answer === $answer){
+                        $score++;
+                    }
+                }
+            }
+            if($quiz_count > 0){
+                $final_score = ($score/$quiz_count) * 100;
+            }
+            
+        // }
+
+        $candidat = Recruitment::find($request->lazawami);
+        $candidat->iq_score = $final_score;
+        $candidat->save();
+
+        if($request->with_disc == 0){
+            // session()->forget('quiz_started');
+            return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+        }else{
+            // disc later
+            
+            $data['datas'] = Test::where('type', 'disc')->get();
+            $data['id'] = $candidat->id;
+            return view('disc', $data);
+            // return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+        }
+        // return $final_score;
+    }
+    public function store_disc(Request $request){
+
+        $d=0;
+        $i=0;
+        $s=0;
+        $c=0;
+
+       foreach ($request->all() as $key => $answer) {
+            if (str_contains($key, "quiz-")) {
+                switch ($answer) {
+                    case 'a': $d++; break;
+                    case 'b': $i++; break;
+                    case 'c': $s++; break;
+                    case 'd': $c++; break;
+                }
+            }
+        }
+
+        $scores = [
+            'D' => $d,
+            'I' => $i,
+            'S' => $s,
+            'C' => $c,
+        ];
+        arsort($scores); // urut dari terbesar
+        $types = array_keys($scores);
+
+        $primary = $types[0];
+        $secondary = $types[1];
+        if ($scores[$primary] == $scores[$secondary]) {
+            $result = $primary . '/' . $secondary; // contoh: D/I
+        } else {
+            $result = $primary;
+        }
+        if (($scores[$primary] - $scores[$secondary]) <= 1) {
+            $result = $primary . '/' . $secondary;
+        }
+        $descriptions = [
+            'D' => 'Dominance: Tegas, cepat mengambil keputusan, fokus pada hasil dan tantangan.',
+            'I' => 'Influence: Komunikatif, persuasif, energik, dan mudah bergaul.',
+            'S' => 'Steadiness: Sabar, stabil, loyal, dan suka membantu orang lain.',
+            'C' => 'Conscientiousness: Teliti, analitis, perfeksionis, dan berorientasi pada detail.',
+
+            'D/I' => 'Dominance-Influence: Leader yang agresif, komunikatif, dan mampu mempengaruhi orang lain.',
+            'D/S' => 'Dominance-Steadiness: Tegas namun tetap stabil dan suportif.',
+            'D/C' => 'Dominance-Conscientiousness: Fokus hasil dengan pendekatan analitis.',
+
+            'I/S' => 'Influence-Steadiness: Ramah, sabar, dan mudah bekerja dalam tim.',
+            'I/C' => 'Influence-Conscientiousness: Komunikatif tapi tetap teliti dan terstruktur.',
+
+            'S/C' => 'Steadiness-Conscientiousness: Stabil, teliti, dan sangat dapat diandalkan.',
+        ];
+        $output = [
+            'scores' => $scores,
+            'result' => $result,
+            'description' => $descriptions[$result] ?? $descriptions[$primary],
+        ];
+
+        $candidat = Recruitment::find($request->lazawami);
+        $candidat->disc_score = $result;
+        $candidat->disc_desc = $descriptions[$result] ?? $descriptions[$primary];
+        $candidat->d = $d;
+        $candidat->i = $i;
+        $candidat->s = $s;
+        $candidat->c = $c;
+        $candidat->save();
+
+        // session()->forget('quiz_started');
+        // session()->forget('quiz_disc_started');
+        return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+       
     }
 }

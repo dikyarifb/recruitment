@@ -14,5 +14,10 @@ use App\Http\Controllers\MainController;
 */
 
 Route::get('/', [MainController::class, 'index']);
+Route::get('/test/iq', [MainController::class, 'index']);
+Route::get('/test/disc', [MainController::class, 'index']);
+Route::get('/apply', [MainController::class, 'index']);
  
 Route::post('/apply', [MainController::class, 'store']);
+Route::post('/test/iq', [MainController::class, 'store_iq']);
+Route::post('/test/disc', [MainController::class, 'store_disc']);
