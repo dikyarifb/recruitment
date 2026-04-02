@@ -7,7 +7,9 @@ use App\Models\SiteEmployeeRequestStructure as Job;
 use App\Models\Recruitment;
 use App\Models\RecruitmentTest as Test;
 use App\Models\Role;
+use App\Models\User;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class MainController extends Controller
 {
@@ -21,6 +23,34 @@ class MainController extends Controller
         // $request->session()->forget('quiz_started');
         return view('welcome', $data);
     }
+    public function login(Request $request){
+        // $data['jobs'] = Job::available()->select('position',  DB::raw('COUNT(*) as total'))->groupBy('position')->get();
+        // return $data;
+        // $data['position'] = 'Cleaning Associate';
+        // session()->forget('quiz_started');
+        // session()->forget('quiz_disc_started');
+        // $request->session()->forget('quiz_started');
+        return view('login');
+    }
+    public function login_post(Request $request)
+{
+    // validate
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
+
+    // attempt login
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->intended('/employee/test/iq'); // change to your dashboard
+    }
+
+    // failed
+    return back()->withErrors([
+        'email' => 'Email or password is incorrect',
+    ])->withInput();
+}
     public function store(Request $request){
         // return $request->all();
         // return back()->withErrors(
@@ -76,6 +106,7 @@ class MainController extends Controller
         $data['with_disc'] = $level > 0 ? 1 : 0;
         $data['datas'] = Test::where('type', 'iq')->get();
         $data['id'] = $res->id;
+        $data['is_employee'] = 0;
         return view('iq', $data)->with('message', '🎉 Lamaran berhasil dikirim! Silahkan isi pertanyaan singkat dibawah ini.');
         // navigate to quiz
         // return back()
@@ -83,14 +114,13 @@ class MainController extends Controller
     public function store_iq(Request $request){
         // return $request->all();
         $score = 0;
-        $quiz_count = 0;
+        $quiz_count = Test::where('type', 'iq')->count();
         $final_score = 0;
         $arrays =[];
         // if($quiz_count > 0){
             foreach ($request->all() as $key => $answer) {
                 array_push($arrays, $key);
                 if(str_contains($key, "quiz-")){
-                    $quiz_count++;
                     $number = (int) str_replace('quiz-', '', $key);
                     if(Test::find($number)->answer === $answer){
                         $score++;
@@ -102,23 +132,33 @@ class MainController extends Controller
             }
             
         // }
+        if($request->is_employee == 1){
+            $user = Auth::user();
 
-        $candidat = Recruitment::find($request->lazawami);
-        $candidat->iq_score = $final_score;
+            $check = Recruitment::where('nik', $user->NIK)->where('is_employee', 1)->first();
+            if($check){
+                return abort(404);
+            }
+            $candidat = new Recruitment;
+            $candidat->is_employee = 1;
+            $candidat->nik = $user->NIK;
+            $candidat->name = $user->name;
+            $candidat->email = $user->email;
+            $candidat->date_applied = date('Y-m-d');
+        }else{
+            $candidat = Recruitment::find($request->lazawami);
+        }
+        $candidat->iq_score = $final_score ?? 0;
         $candidat->save();
 
-        if($request->with_disc == 0){
+        if($request->with_disc == "0"){
             // session()->forget('quiz_started');
             return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
         }else{
-            // disc later
-            
             $data['datas'] = Test::where('type', 'disc')->get();
             $data['id'] = $candidat->id;
-            return view('disc', $data);
-            // return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+            return view('disc', $data);      // return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
         }
-        // return $final_score;
     }
     public function store_disc(Request $request){
 
@@ -189,7 +229,15 @@ class MainController extends Controller
 
         // session()->forget('quiz_started');
         // session()->forget('quiz_disc_started');
-        return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+        $message = $candidat->is_employee ? 'Record saved' : '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.'; 
+        return redirect('/')->with('message', $message);
        
+    }
+    public function employee_iq_form(){
+        $data['with_disc'] = 1;
+        $data['datas'] = Test::where('type', 'iq')->get();
+        $data['id'] = Auth::id();
+        $data['is_employee'] = 1;
+        return view('iq', $data);
     }
 }
