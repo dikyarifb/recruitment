@@ -13,7 +13,7 @@ window.onpopstate = function () {
 <style>
 #container-background {
     position: relative;
-    background-image: url('img/banner.jpeg');
+    background-image: url('img/banner.jpg');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
@@ -27,7 +27,7 @@ window.onpopstate = function () {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3); /* adjust opacity here */
+    /* background: rgba(0, 0, 0, 0.3); adjust opacity here */
     z-index: 1;
 }
 
