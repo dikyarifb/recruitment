@@ -42,10 +42,10 @@ window.onpopstate = function () {
 <div class="hero"  >
 
 <div class="floating">
-    <i class="fa-solid fa-code fa-2x"></i>
-    <i class="fa-solid fa-database fa-2x"></i>
-    <i class="fa-solid fa-server fa-2x"></i>
-    <i class="fa-solid fa-microchip fa-2x"></i>
+    <i>Build your future</i>
+    <i>Grow with us</i>
+    <i>Join our team</i>
+    <i>Create real impact</i>
 </div>
 
 <div class="container">
