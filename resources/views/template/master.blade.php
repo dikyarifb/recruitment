@@ -40,7 +40,7 @@ body {
     position: relative;
     padding: 100px 0 60px;
     text-align: center;
-    background: radial-gradient(circle at top, #1e293b, #020617);
+    /* background: radial-gradient(circle at top, #1e293b, #020617); */
 }
 
 .hero h1 { font-size: 48px; font-weight: 700; }

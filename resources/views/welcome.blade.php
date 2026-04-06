@@ -10,8 +10,36 @@ window.onpopstate = function () {
 </script>
 @endsection
 @section('content')
+<style>
+#container-background {
+    position: relative;
+    background-image: url('img/banner.jpeg');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-color: black;
+
+    aspect-ratio: 3 / 1; /* adjust based on your image */
+    width: 100%;
+}
+/* BLACK OVERLAY */
+#container-background::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3); /* adjust opacity here */
+    z-index: 1;
+}
+
+/* keep content above overlay */
+#container-background * {
+    position: relative;
+    z-index: 2;
+}
+</style>
     <!-- HERO -->
-<div class="hero">
+<div id="container-background"></div>
+<div class="hero"  >
 
 <div class="floating">
     <i class="fa-solid fa-code fa-2x"></i>
