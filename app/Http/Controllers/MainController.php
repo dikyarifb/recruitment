@@ -91,6 +91,10 @@ class MainController extends Controller
         $res->experience_time = $request->experience_time;
         $res->education = $request->education;
         $res->position = $request->position;
+        $res->gender = $request->gender ?? '-';
+        $res->heigth = $request->heigth ?? 0;
+        $res->weight = $request->weight ?? 0;
+        $res->region = $request->region ?? 'metro';
         $res->date_applied = date('Y-m-d');
         $res->introduction = $request->name ?? NULL;
 

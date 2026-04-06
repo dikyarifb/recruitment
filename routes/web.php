@@ -17,7 +17,7 @@ Route::get('/', [MainController::class, 'index']);
 Route::get('/login', [MainController::class, 'login'])->name('login')->middleware('guest');
 Route::post('/login', [MainController::class, 'login_post']);
 
-Route::post('/apply', [MainController::class, 'store']);
+Route::post('/apply', [MainController::class, 'store'])->name('apply');
 Route::post('/test/iq', [MainController::class, 'store_iq']);
 Route::post('/test/disc', [MainController::class, 'store_disc']);
 

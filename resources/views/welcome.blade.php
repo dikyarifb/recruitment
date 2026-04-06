@@ -116,7 +116,7 @@ window.onpopstate = function () {
 
 <form action="/apply" method="POST" enctype="multipart/form-data">
 @csrf
-
+<input type="hidden" name="region" value="{{ request('region') }}">
 <div class="row">
 
 <div class="col-md-6 mb-3 input-icon">
@@ -194,6 +194,29 @@ window.onpopstate = function () {
 <i class="fa-solid fa-pen"></i>
 <textarea name="introduction" rows="4" placeholder="Ceritakan sedikit tentang diri Anda..." class="form-control" required></textarea>
 </div>
+
+
+<div class="col-md-6 mb-3 input-icon">
+<i class="fa-solid fa-ruler"></i>
+<input type="number" name="heigth" placeholder="Tinggi Badan - cm (optional)" class="form-control">
+</div>
+
+
+
+<div class="col-md-6 mb-3 input-icon">
+<i class="fa-solid fa-weight"></i>
+<input type="number" name="weight" placeholder="Berat Badan - kg (optional)" class="form-control">
+</div>
+
+<div class="col-12 mb-3 input-icon">
+<i class="fa-solid fa-user"></i>
+<select name="gender" class="form-select">
+<option value="">Jenis Kelamin</option>
+<option value="pria">Pria</option>
+<option value="wanita">Wanita</option>
+</select>
+</div>
+
 
 <div class="col-12 mb-3">
 <div class="upload-box">
