@@ -107,6 +107,9 @@ class MainController extends Controller
         if($role){
             $level = $role->level;
         }
+        if($res->position == 'other'){
+            $level = 1;
+        }
         $data['with_disc'] = $level > 0 ? 1 : 0;
         $data['datas'] = Test::where('type', 'iq')->get();
         $data['id'] = $res->id;
