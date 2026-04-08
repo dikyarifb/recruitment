@@ -23,7 +23,7 @@ class MainController extends Controller
         ))->groupBy('position')->get()->filter(function($filter){
             $filter->applied = Recruitment::where('position', $filter->position)
                                                 ->where('created_at', '>', $filter->created_at)
-                                                ->where('created_at', '<', $filter->effective_date)
+                                                ->where('created_at', '<', $filter->created_at)
                                                 ->count();
             return $filter;
         });
