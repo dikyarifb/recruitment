@@ -68,7 +68,7 @@ class MainController extends Controller
             'education' => 'required',
             'position' => 'required',
             'introduction' => 'required',
-            'cv' => 'required|mimes:pdf|max:2048',
+            'cv' => 'required|mimes:pdf|max:1024',
         ];
 
         $this->validate($request, $rules);

@@ -221,7 +221,7 @@ window.onpopstate = function () {
 <div class="col-12 mb-3">
 <div class="upload-box">
 <i class="fa-solid fa-cloud-arrow-up"></i>
-<p>Upload CV (drag & drop atau klik) - pdf, max:2MB</p>
+<p>Upload CV (drag & drop atau klik) - pdf, max:1MB</p>
 <input type="file" name="cv" class="form-control mt-2">
 </div>
 </div>
