@@ -18,9 +18,13 @@ class MainController extends Controller
         $data['jobs'] = Job::available()->select(
             'position',
             DB::raw('MIN(created_at) as created_at'),
+            DB::raw('MAX(site_employee_request.effective_date) as effective_date'),
             DB::raw('COUNT(*) as total'
         ))->groupBy('position')->get()->filter(function($filter){
-            $filter->applied = Recruitment::where('position', $filter->position)->where('created_at', '<', $filter->created_at)->count();
+            $filter->applied = Recruitment::where('position', $filter->position)
+                                                ->where('created_at', '>', $filter->created_at)
+                                                ->where('created_at', '<', $filter->effective_date)
+                                                ->count();
             return $filter;
         });
         // return $data;
