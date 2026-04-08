@@ -121,22 +121,22 @@ window.onpopstate = function () {
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-user"></i>
-<input type="text" name="name" placeholder="Nama Lengkap" class="form-control" required>
+<input value="{{ old('name') }}" type="text" name="name" placeholder="Nama Lengkap" class="form-control" required>
 </div>
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-envelope"></i>
-<input type="email" name="email" placeholder="Email" class="form-control" required>
+<input value="{{ old('email') }}" type="email" name="email" placeholder="Email" class="form-control" required>
 </div>
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-phone"></i>
-<input type="text" name="phone" placeholder="Nomor HP" class="form-control">
+<input value="{{ old('phone') }}" type="text" name="phone" placeholder="Nomor HP" class="form-control">
 </div>
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-id-card"></i>
-<input type="text" name="nik" placeholder="Nomor Induk KTP (NIK)" class="form-control">
+<input value="{{ old('nik') }}" type="number" name="nik" placeholder="Nomor Induk KTP (NIK)" class="form-control">
 </div>
 
 {{-- pengalaman --}}
@@ -145,10 +145,10 @@ window.onpopstate = function () {
 <i class="fa-solid fa-briefcase"></i>
 <select name="experience_position" class="form-select" required>
 <option value="">Level Pekerjaan Terakhir</option>
-<option value="staff">Staff atau Operator</option>
-<option value="leader">Leader atau Supervisor</option>
-<option value="manager_above">Manager dan diatasnya</option>
-<option value="lainnya">Lainnya</option>
+<option value="staff" {{ old('experience_position') == 'staff' ? 'selected' : '' }}>Staff atau Operator</option>
+<option value="leader"> {{ old('experience_position') == 'leader' ? 'selected' : '' }}Leader atau Supervisor</option>
+<option value="manager_above" {{ old('experience_position') == 'manager_above' ? 'selected' : '' }}>Manager dan diatasnya</option>
+<option value="lainnya" {{ old('experience_position') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
 </select>
 </div>
 
@@ -157,10 +157,10 @@ window.onpopstate = function () {
 <i class="fa-regular fa-calendar-check"></i>
 <select name="experience_time" class="form-select" required>
 <option value="">Lama Bekerja (posisi terakhir)</option>
-<option value="dibawah 6 bulan">Dibawah 6 bulan</option>
-<option value="dibawah 1 tahun">Dibawah 1 tahun</option>
-<option value="1 sampai 3 tahun">1 sampai 3 tahun</option>
-<option value="diatas 3 tahun">Diatas 3 tahun</option>
+<option value="dibawah 6 bulan" {{ old('experience_time') == 'dibawah 6 bulan' ? 'selected' : '' }}>Dibawah 6 bulan</option>
+<option value="dibawah 1 tahun" {{ old('experience_time') == 'dibawah 1 tahun' ? 'selected' : '' }}>Dibawah 1 tahun</option>
+<option value="1 sampai 3 tahun" {{ old('experience_time') == '1 sampai 3 tahun' ? 'selected' : '' }}>1 sampai 3 tahun</option>
+<option value="diatas 3 tahun" {{ old('experience_time') == 'diatas 3 tahun' ? 'selected' : '' }}>Diatas 3 tahun</option>
 </select>
 </div>
 
@@ -170,9 +170,9 @@ window.onpopstate = function () {
 <select name="position" class="form-select" required>
 <option value="">Pilih Posisi yang diinginkan</option>
 @foreach($jobs as $job)
-<option value="{{ $job->position}}">{{ $job->position }}</option>
+<option value="{{ $job->position}}" {{ old('position') == $job->position ? 'selected' : '' }}>{{ $job->position }}</option>
 @endforeach
-<option value="other">Other / Lainnya</option>
+<option value="other"  {{ old('position') == 'other' ? 'selected' : '' }}>{{ $job->position }}>Other / Lainnya</option>
 </select>
 </div>
 
@@ -180,40 +180,40 @@ window.onpopstate = function () {
 <i class="fa-solid fa-graduation-cap"></i>
 <select name="education" class="form-select" required>
 <option value="">Pendidikan Terakhir</option>
-<option value="sd-smp">SD-SMP</option>
-<option value="sma/smk">SMA/SMK</option>
-<option value="d3">D3</option>
-<option value="s1/d4">S1/D4</option>
-<option value="s2">S2</option>
-<option value="lainnya">Lainnya</option>
+<option value="sd-smp" {{ old('education') == 'sd-smp' ? 'selected' : '' }}>SD-SMP</option>
+<option value="sma/smk" {{ old('education') == 'sma/smk' ? 'selected' : '' }}>SMA/SMK</option>
+<option value="d3" {{ old('education') == 'd3' ? 'selected' : '' }}>D3</option>
+<option value="s1/d4" {{ old('education') == 's1/d4' ? 'selected' : '' }}>S1/D4</option>
+<option value="s2" {{ old('education') == 's2' ? 'selected' : '' }}>S2</option>
+<option value="lainnya" {{ old('education') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
 </select>
 </div>
 
 
 <div class="col-12 mb-3 input-icon">
 <i class="fa-solid fa-pen"></i>
-<textarea name="introduction" rows="4" placeholder="Ceritakan sedikit tentang diri Anda..." class="form-control" required></textarea>
+<textarea name="introduction" rows="4" placeholder="Ceritakan sedikit tentang diri Anda..." class="form-control" required>{{ old('introduction') }}</textarea>
 </div>
 
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-ruler"></i>
-<input type="number" name="heigth" placeholder="Tinggi Badan - cm (optional)" class="form-control">
+<input value="{{ old('heigth') }}" type="number" name="heigth" placeholder="Tinggi Badan - cm (optional)" class="form-control">
 </div>
 
 
 
 <div class="col-md-6 mb-3 input-icon">
 <i class="fa-solid fa-weight"></i>
-<input type="number" name="weight" placeholder="Berat Badan - kg (optional)" class="form-control">
+<input value="{{ old('weight') }}" type="number" name="weight" placeholder="Berat Badan - kg (optional)" class="form-control">
 </div>
 
 <div class="col-12 mb-3 input-icon">
 <i class="fa-solid fa-user"></i>
 <select name="gender" class="form-select">
 <option value="">Jenis Kelamin</option>
-<option value="pria">Pria</option>
-<option value="wanita">Wanita</option>
+<option value="pria" {{ old('gender') == 'pria' ? 'selected' : '' }}>Pria</option>
+<option value="wanita" {{ old('gender') == 'wanita' ? 'selected' : '' }}>Wanita</option>
 </select>
 </div>
 
