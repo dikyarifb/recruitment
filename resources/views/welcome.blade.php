@@ -246,7 +246,7 @@ window.onpopstate = function () {
 <small class="text-secondary">
 {{-- <i class="fa-solid fa-location-dot"></i> {{ $job->position }} --}}
 </small>
-<p class="mt-2 text-secondary">{{ $job->total }} positions available • 0 applied today </p>
+<p class="mt-2 text-secondary">{{ $job->total }} positions available • {{$job->applied}} applied </p>
 </div>
 </div>
 @endforeach
