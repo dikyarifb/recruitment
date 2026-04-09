@@ -107,7 +107,7 @@ class MainController extends Controller
         $res->weight = $request->weight ?? 0;
         $res->region = $request->region ?? 'metro';
         $res->date_applied = date('Y-m-d');
-        $res->introduction = $request->name ?? NULL;
+        $res->introduction = $request->introduction ?? NULL;
 
         $res->cv = $this->store_file($request->file('cv'), 'recruitment/cv');
         $res->save();
