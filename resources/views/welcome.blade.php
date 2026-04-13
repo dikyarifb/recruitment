@@ -219,7 +219,7 @@ window.onpopstate = function () {
 
 
 <div class="col-12 mb-3">
-<div class="upload-box">
+<div id="upload-box" class="upload-box" onclick="triggerFileInput(this)">
 <i class="fa-solid fa-cloud-arrow-up"></i>
 <p>Upload CV (drag & drop atau klik) - pdf, max:1MB</p>
 <input type="file" name="cv" class="form-control mt-2">
@@ -275,5 +275,67 @@ function applyJob(id) {
 function scrollToSection() {
     document.getElementById('career').scrollIntoView({ behavior: 'smooth' });
 }
+const box = document.getElementById('upload-box');
+const input = box.querySelector('input[type="file"]');
+const text = document.getElementById('upload-text');
+
+// CLICK
+box.addEventListener('click', () => input.click());
+
+// PREVENT LOOP
+input.addEventListener('click', (e) => e.stopPropagation());
+
+// HANDLE FILE
+function handleFile(file) {
+  if (!file) return;
+
+  // VALIDATION
+  if (file.type !== 'application/pdf') {
+    alert('Hanya file PDF yang diperbolehkan!');
+    resetFile();
+    return;
+  }
+
+  if (file.size > 1024 * 1024) {
+    alert('Ukuran file maksimal 1MB!');
+    resetFile();
+    return;
+  }
+
+  // UPDATE UI
+  text.innerText = file.name;
+}
+
+// INPUT CHANGE
+input.addEventListener('change', () => {
+  handleFile(input.files[0]);
+});
+
+// DRAG OVER
+box.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  box.classList.add('hover');
+});
+
+// DRAG LEAVE
+box.addEventListener('dragleave', () => {
+  box.classList.remove('hover');
+});
+
+// DROP
+box.addEventListener('drop', (e) => {
+  e.preventDefault();
+  box.classList.remove('hover');
+
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+
+  handleFile(file);
+
+  // Assign file to input
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  input.files = dt.files;
+});
 </script>
 @endsection
