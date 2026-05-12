@@ -8,13 +8,17 @@ use App\Models\Recruitment;
 use App\Models\RecruitmentTest as Test;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Scheduler;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\Applicant as MailApplicant;
 
 class MainController extends Controller
 {
     
     public function index(Request $request){
+        // $data['applicant'] = Recruitment::find(22);
+        // return view('email.new-applicant', $data);
         $data['jobs'] = Job::available()->select(
             'position',
             DB::raw('MIN(created_at) as created_at'),
@@ -171,6 +175,7 @@ class MainController extends Controller
 
         if($request->with_disc == "0"){
             // session()->forget('quiz_started');
+            $this->mail_applicant_to_hr($candidat);
             return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
         }else{
             $data['datas'] = Test::where('type', 'disc')->get();
@@ -248,6 +253,9 @@ class MainController extends Controller
         // session()->forget('quiz_started');
         // session()->forget('quiz_disc_started');
         $message = $candidat->is_employee ? 'Record saved' : '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.'; 
+        if(!$candidat->is_employee){
+            $this->mail_applicant_to_hr($candidat);
+        }
         return redirect('/')->with('message', $message);
        
     }
@@ -257,5 +265,20 @@ class MainController extends Controller
         $data['id'] = Auth::id();
         $data['is_employee'] = 1;
         return view('iq', $data);
+    }
+    private function mail_applicant_to_hr($data){
+        // later use scheduler
+        $scheduler = new Scheduler;
+        $scheduler->type = 'mail_applicant';
+        $scheduler->sub_type = $data->id;
+        $scheduler->time = date("Y-m-d H:i:00", strtotime("+2 minutes"));
+        $scheduler->status = 1;
+        $scheduler->user_id = 33;
+        $scheduler->save();
+
+        // $e['applicant'] = $data;
+        // \Mail::to('recruitment@arsaindonesia.co.id')->cc('arsatech.notification@arsaindonesia.co.id')->send(new MailApplicant(
+        //     $e
+        // ));
     }
 }
