@@ -172,7 +172,7 @@ window.onpopstate = function () {
 @foreach($jobs as $job)
 <option value="{{ $job->position}}" {{ old('position') == $job->position ? 'selected' : '' }}>{{ $job->position }}</option>
 @endforeach
-<option value="other"  {{ old('position') == 'other' ? 'selected' : '' }}>{{ $job->position }}>Other / Lainnya</option>
+<option value="other"  {{ old('position') == 'other' ? 'selected' : '' }}>{{ $job->position }}Other / Lainnya</option>
 </select>
 </div>
 
