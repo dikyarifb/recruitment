@@ -126,7 +126,7 @@ class MainController extends Controller
             $level = 1;
         }
         $data['with_disc'] = $level > 0 ? 1 : 0;
-        $data['datas'] = Test::where('type', 'iq')->get();
+        $data['datas'] = Test::where('type', 'iq')->where('level', 'associate')->get();
         $data['id'] = $res->id;
         $data['is_employee'] = 0;
         return view('iq', $data)->with('message', '🎉 Lamaran berhasil dikirim! Silahkan isi pertanyaan singkat dibawah ini.');
@@ -136,48 +136,74 @@ class MainController extends Controller
     public function store_iq(Request $request){
         // return $request->all();
         $score = 0;
-        $quiz_count = Test::where('type', 'iq')->count();
         $final_score = 0;
+        $level = 'associate';
         $arrays =[];
         // if($quiz_count > 0){
             foreach ($request->all() as $key => $answer) {
                 array_push($arrays, $key);
                 if(str_contains($key, "quiz-")){
                     $number = (int) str_replace('quiz-', '', $key);
+                    $level = Test::find($number)->level;
                     if(Test::find($number)->answer === $answer){
                         $score++;
                     }
                 }
             }
-            if($quiz_count > 0){
-                $final_score = ($score/$quiz_count) * 100;
-            }
+
+        $quiz_count = Test::where('type', 'iq')->where('level', $level)->count();
+        if($quiz_count > 0){
+            $final_score = ($score/$quiz_count) * 100;
+        }
             
         // }
         if($request->is_employee == 1){
             $user = Auth::user();
-
             $check = Recruitment::where('nik', $user->NIK)->where('is_employee', 1)->first();
             if($check){
-                return abort(404);
+                $candidat = $check;
+            }else{
+                $candidat = new Recruitment;
+                $candidat->is_employee = 1;
+                $candidat->nik = $user->NIK;
+                $candidat->name = $user->name;
+                $candidat->email = $user->email;
+                $candidat->date_applied = date('Y-m-d');
             }
-            $candidat = new Recruitment;
-            $candidat->is_employee = 1;
-            $candidat->nik = $user->NIK;
-            $candidat->name = $user->name;
-            $candidat->email = $user->email;
-            $candidat->date_applied = date('Y-m-d');
+            switch ($level) {
+                case 'associate':
+                    $candidat->iq_score = $final_score ?? 1;
+                    break;
+                case 'supervisor':
+                    $candidat->iq_supervisor_score = $final_score ?? 1;
+                    break;
+                case 'manager':
+                    $candidat->iq_manager_score = $final_score ?? 1;
+                    break;
+                default:
+                    # code...
+                    break;
+            }
         }else{
             $candidat = Recruitment::find($request->lazawami);
+            $candidat->iq_score = $final_score ?? 0;
         }
-        $candidat->iq_score = $final_score ?? 0;
         $candidat->save();
 
         if($request->with_disc == "0"){
             // session()->forget('quiz_started');
             $this->mail_applicant_to_hr($candidat);
-            return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
+            $message = '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.';
+            if($request->is_employee == 1){
+                $message = 'Thank you for your time';
+            }
+            return redirect('/')->with('message', $message);
         }else{
+            if($request->is_employee == 1){
+                if($candidat->disc_score){
+                    return redirect('/')->with('message', 'Thank you for your time');
+                }
+            }
             $data['datas'] = Test::where('type', 'disc')->get();
             $data['id'] = $candidat->id;
             return view('disc', $data);      // return redirect('/')->with('message', '🎉 Lamaran berhasil dikirim! Kami akan segera meninjau dan menghubungi Anda jika lolos tahap berikutnya.');
@@ -260,10 +286,50 @@ class MainController extends Controller
        
     }
     public function employee_iq_form(){
-        $data['with_disc'] = 1;
-        $data['datas'] = Test::where('type', 'iq')->get();
+        $level = 'associate';
+        $with_disc = 1;
+        $participant = Recruitment::where('nik', Auth::user()->NIK)->first();
+        $user = Auth::user();
+        if($participant){
+            if($participant->iq_score){
+                $level = 'supervisor';
+                $with_disc = 0;
+            }
+            if($participant->iq_supervisor_score){
+                $level = 'manager';
+                $with_disc = 0;
+            }
+            if($participant->iq_manager_score){
+                return redirect('/')->with('message', 'Kamu sudah pernah menjalani test ini');
+            }
+        }else{
+            $participant = new Recruitment;
+            $participant->is_employee = 1;
+            $participant->nik = $user->NIK;
+            $participant->name = $user->name;
+            $participant->email = $user->email;
+            $participant->date_applied = date('Y-m-d');
+        }
+        switch ($level) {
+            case 'supervisor':
+                $participant->iq_supervisor_score = 1;
+                break;
+            case 'manager':
+                $participant->iq_manager_score = 1;
+                break;
+            default:
+                $participant->iq_score = 1;
+                break;
+        }
+        $participant->save();
+        $data['with_disc'] = $with_disc;
+        $data['level'] = $level;
+        $data['datas'] = Test::where('type', 'iq')->where('level',$level)->get();
         $data['id'] = Auth::id();
         $data['is_employee'] = 1;
+        $data['title'] = 'Logic '.ucfirst($level).' Level';
+        $data['time'] = $level == 'associate' ? 7 : 15;
+
         return view('iq', $data);
     }
     private function mail_applicant_to_hr($data){

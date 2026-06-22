@@ -19,7 +19,7 @@ if (performance.getEntriesByType('navigation')[0].type === 'reload') {
   <div class="container">
     <div class="glass p-4">
 
-      <h3 class="mb-4 text-center">🧠 (1/{{$with_disc+1}}) Test Logika Dasar - 7 menit</h3>
+      <h3 class="mb-4 text-center">🧠 (1/{{$with_disc+1}}) {{$title ?? 'Test Logika Dasar'}} - {{$time ?? 7}} menit</h3>
         <div class="text-center mb-3">
             <h5>
                 ⏱ Time Left: <span id="timer">07:00</span>
@@ -71,7 +71,7 @@ if (performance.getEntriesByType('navigation')[0].type === 'reload') {
 // window.onbeforeunload = function () {
 //     return "Your progress will be lost!";
 // };
-let duration = 7*60; // 7 minutes in seconds
+let duration = {{$time ?? 7}}*60; // 7 minutes in seconds
 let timerDisplay = document.getElementById('timer');
 
 let countdown = setInterval(function () {
