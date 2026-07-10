@@ -337,6 +337,7 @@ class MainController extends Controller
         $scheduler = new Scheduler;
         $scheduler->type = 'mail_applicant';
         $scheduler->sub_type = $data->id;
+        $scheduler->hidden = 1;
         $scheduler->time = date("Y-m-d H:i:00", strtotime("+2 minutes"));
         $scheduler->status = 1;
         $scheduler->user_id = 33;
