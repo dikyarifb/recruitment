@@ -375,6 +375,7 @@ class MainController extends Controller
                 return redirect()->back()->with('success', 'You have completed all initiative assessments.');
             }
         }else{
+            $user = Auth::user();
             $participant = new Recruitment;
             $participant->is_employee = 1;
             $participant->nik = $user->NIK;
