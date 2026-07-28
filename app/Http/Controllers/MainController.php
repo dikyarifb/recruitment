@@ -446,27 +446,27 @@ class MainController extends Controller
     }
     public function initiative_results(){
         $data['user'] = Auth::user();
-        $score = $data['user']->recruitment->initiative_score/6;
+        $score = $data['user']->recruitment->initiative_score;
         $title = '';
         $subtitle = '';
 
         switch (true) {
-            case ($score >= 54 && $score <= 60):
+            case ($score >= 90):
                 $title = 'Outstanding Initiative';
                 $subtitle = 'Peserta secara konsisten menunjukkan perilaku proaktif, mampu mengambil keputusan, bertanggung jawab, dan berorientasi pada perbaikan berkelanjutan.';
                 break;
 
-            case ($score >= 48 && $score <= 53):
+            case ($score >= 80):
                 $title = 'Strong Initiative';
                 $subtitle = 'Memiliki inisiatif tinggi dengan beberapa area yang masih dapat dikembangkan.';
                 break;
 
-            case ($score >= 42 && $score <= 47):
+            case ($score >= 70):
                 $title = 'Adequate Initiative';
                 $subtitle = 'Mampu bekerja secara mandiri namun masih memerlukan penguatan pada beberapa kompetensi.';
                 break;
 
-            case ($score >= 36 && $score <= 41):
+            case ($score >= 60):
                 $title = 'Developing Initiative';
                 $subtitle = 'Cenderung menunggu arahan pada situasi tertentu. Membutuhkan coaching.';
                 break;
