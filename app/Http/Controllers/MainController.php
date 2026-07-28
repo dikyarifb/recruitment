@@ -372,7 +372,7 @@ class MainController extends Controller
             }
             // Optional: if all parts are completed
             if ($participant->initiative_six_score !== null) {
-                return redirect()->back()->with('success', 'You have completed all initiative assessments.');
+                return redirect('/employee/initiative/results');
             }
         }else{
             $user = Auth::user();
@@ -439,9 +439,45 @@ class MainController extends Controller
         }
         $res->save();
         if($finish){
-            return redirect('/')->with('message', 'Thank you for your time!');
+            return redirect('/employee/initiative/results');
         }else{
             return redirect('/employee/test/initiative');
         }
+    }
+    public function initiative_results(){
+        $data['user'] = Auth::user();
+        $score = $data['user']->recruitment->initiative_score/6;
+        $title = '';
+        $subtitle = '';
+
+        switch (true) {
+            case ($score >= 54 && $score <= 60):
+                $title = 'Outstanding Initiative';
+                $subtitle = 'Peserta secara konsisten menunjukkan perilaku proaktif, mampu mengambil keputusan, bertanggung jawab, dan berorientasi pada perbaikan berkelanjutan.';
+                break;
+
+            case ($score >= 48 && $score <= 53):
+                $title = 'Strong Initiative';
+                $subtitle = 'Memiliki inisiatif tinggi dengan beberapa area yang masih dapat dikembangkan.';
+                break;
+
+            case ($score >= 42 && $score <= 47):
+                $title = 'Adequate Initiative';
+                $subtitle = 'Mampu bekerja secara mandiri namun masih memerlukan penguatan pada beberapa kompetensi.';
+                break;
+
+            case ($score >= 36 && $score <= 41):
+                $title = 'Developing Initiative';
+                $subtitle = 'Cenderung menunggu arahan pada situasi tertentu. Membutuhkan coaching.';
+                break;
+
+            default:
+                $title = 'Low Initiative';
+                $subtitle = 'Lebih banyak menunggu instruksi. Membutuhkan pengembangan intensif sebelum diberikan tanggung jawab yang lebih besar.';
+                break;
+        }
+        $data['result_title'] = $title;
+        $data['result_subtitle'] = $subtitle;
+        return view('results', $data);
     }
 }

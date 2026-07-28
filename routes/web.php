@@ -27,3 +27,4 @@ Route::get('/employee/test/iq', [MainController::class, 'employee_iq_form'])->mi
 Route::get('/employee/test/initiative', [MainController::class, 'employee_iniciative_form'])->middleware('auth');
 Route::post('/employee/test/initiative', [MainController::class, 'initiative_next'])->middleware('auth');
 Route::get('/employee/test/disc', [MainController::class, 'employee_disc_form'])->middleware('auth');
+Route::get('/employee/initiative/results', [MainController::class, 'initiative_results'])->middleware('auth');
