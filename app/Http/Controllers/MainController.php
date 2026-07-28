@@ -140,16 +140,16 @@ class MainController extends Controller
         $level = 'associate';
         $arrays =[];
         // if($quiz_count > 0){
-            foreach ($request->all() as $key => $answer) {
-                array_push($arrays, $key);
-                if(str_contains($key, "quiz-")){
-                    $number = (int) str_replace('quiz-', '', $key);
-                    $level = Test::find($number)->level;
-                    if(Test::find($number)->answer === $answer){
-                        $score++;
-                    }
+        foreach ($request->all() as $key => $answer) {
+            array_push($arrays, $key);
+            if(str_contains($key, "quiz-")){
+                $number = (int) str_replace('quiz-', '', $key);
+                $level = Test::find($number)->level;
+                if(Test::find($number)->answer === $answer){
+                    $score++;
                 }
             }
+        }
 
         $quiz_count = Test::where('type', 'iq')->where('level', $level)->count();
         if($quiz_count > 0){
@@ -347,5 +347,100 @@ class MainController extends Controller
         // \Mail::to('recruitment@arsaindonesia.co.id')->cc('arsatech.notification@arsaindonesia.co.id')->send(new MailApplicant(
         //     $e
         // ));
+    }
+    public function employee_iniciative_form(){
+        $participant = Recruitment::where('nik', Auth::user()->NIK)->first();
+        $part = 1;
+        if($participant){
+            if ($participant->initiative_one_score !== null) {
+                $part = 2;
+            }
+
+            if ($participant->initiative_two_score !== null) {
+                $part = 3;
+            }
+
+            if ($participant->initiative_three_score !== null) {
+                $part = 4;
+            }
+
+            if ($participant->initiative_four_score !== null) {
+                $part = 5;
+            }
+            if ($participant->initiative_five_score !== null) {
+                $part = 6;
+            }
+            // Optional: if all parts are completed
+            if ($participant->initiative_six_score !== null) {
+                return redirect()->back()->with('success', 'You have completed all initiative assessments.');
+            }
+        }else{
+            $participant = new Recruitment;
+            $participant->is_employee = 1;
+            $participant->nik = $user->NIK;
+            $participant->name = $user->name;
+            $participant->email = $user->email;
+            $participant->date_applied = date('Y-m-d');
+            $participant->save();
+        }
+        $data['part'] = $part;
+        $data['title'] = 'ARSA Initiative Assessment';
+        $data['time'] = 15;
+        $data['id'] = $participant->id;
+        $data['is_employee'] = 1;
+        $data['datas'] = Test::where('type', 'initiative')->where('level', 'initiative')->where('part', $part)->get();
+        return view('initiative', $data);
+    }
+    public function initiative_next(Request $request){
+        // dd($request->all());
+        $score = 0;
+        $finish = 0;
+        $final_score = 0;
+        $level = 'initiative';
+        $arrays =[];
+        // if($quiz_count > 0){
+        foreach ($request->all() as $key => $answer) {
+            array_push($arrays, $key);
+            if(str_contains($key, "quiz-")){
+                $number = (int) str_replace('quiz-', '', $key);
+                $level = Test::find($number)->level;
+                if(Test::find($number)->answer === $answer){
+                    $score++;
+                }
+            }
+        }
+        $quiz_count = Test::where('type', 'initiative')->where('part', $request->part)->count();
+        if($quiz_count > 0){
+            $final_score = ($score/$quiz_count) * 100;
+        }
+        $res = Recruitment::find($request->lazawami);
+        switch ($request->part) {
+            case '1':
+                $res->initiative_one_score = $final_score;
+                break;
+            case '2':
+                $res->initiative_two_score = $final_score;
+                break;
+            case '3':
+                $res->initiative_three_score = $final_score;
+                break;
+            case '4':
+                $res->initiative_four_score = $final_score;
+                break;
+            case '5':
+                $res->initiative_five_score = $final_score;
+                break;
+            case '6':
+                $finish = 1;
+                $res->initiative_six_score = $final_score;
+                $res->initiative_score = ($res->initiative_one_score+$res->initiative_two_score+$res->initiative_three_score+$res->initiative_four_score+$res->initiative_five_score+$res->initiative_six_score)/6;
+                break;
+        }
+        $res->save();
+        if($finish){
+            return redirect('/')->with('message', 'Thank you for your time!');
+        }else{
+            return redirect('/employee/test/initiative');
+        }
     }
 }
