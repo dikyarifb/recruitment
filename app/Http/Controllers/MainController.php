@@ -350,6 +350,7 @@ class MainController extends Controller
     }
     public function employee_iniciative_form(){
         $participant = Recruitment::where('nik', Auth::user()->NIK)->first();
+        // return view('filosofi');
         $part = 1;
         if($participant){
             if ($participant->initiative_one_score !== null) {
@@ -415,34 +416,38 @@ class MainController extends Controller
             $final_score = ($score/$quiz_count) * 100;
         }
         $res = Recruitment::find($request->lazawami);
+        $text = '';
         switch ($request->part) {
             case '1':
                 $res->initiative_one_score = $final_score;
+                $text = "Inisiatif sejati dimulai dari keberanian untuk bertanya. Tidak bertanya, maka asumsi mengambil alih.";
                 break;
             case '2':
                 $res->initiative_two_score = $final_score;
+                $text = "Masalah yang besar hampir selalu diawali oleh tanda-tanda kecil yang diabaikan. Talent yang memiliki inisiatif mengenali tanda tersebut lebih awal, lalu mengambil tindakan yang tepat sebelum pelanggan merasakan dampaknya.";
                 break;
             case '3':
                 $res->initiative_three_score = $final_score;
+                $text = "Keputusan yang tepat lahir dari informasi yang benar, pertimbangan yang matang, dan keberanian untuk bertanggung jawab atas hasilnya.";
                 break;
             case '4':
                 $res->initiative_four_score = $final_score;
+                $text = "Inisiatif tidak berhenti pada kemampuan melihat masalah. Nilainya terlihat ketika seseorang berani mengambil tindakan yang tepat, pada waktu yang tepat, dengan cara yang tepat, serta bertanggung jawab atas hasilnya.";
                 break;
             case '5':
                 $res->initiative_five_score = $final_score;
+                $text = "Tanggung jawab tidak berakhir ketika pekerjaan selesai. Tanggung jawab berakhir ketika hasil telah dipastikan sesuai standar, pelanggan memperoleh solusi, dan seluruh proses dapat dipertanggungjawabkan.";
                 break;
             case '6':
                 $finish = 1;
+                $text = "Setiap pekerjaan selalu dapat dilakukan dengan lebih baik. Talent yang memiliki inisiatif tidak pernah berhenti bertanya: 'Apa yang dapat kita perbaiki untuk memberikan pelayanan yang lebih baik besok daripada hari ini?";
                 $res->initiative_six_score = $final_score;
                 $res->initiative_score = ($res->initiative_one_score+$res->initiative_two_score+$res->initiative_three_score+$res->initiative_four_score+$res->initiative_five_score+$res->initiative_six_score)/6;
                 break;
         }
         $res->save();
-        if($finish){
-            return redirect('/employee/initiative/results');
-        }else{
-            return redirect('/employee/test/initiative');
-        }
+        $data['text'] = $text;
+        return view('filosofi', $data);
     }
     public function initiative_results(){
         $data['user'] = Auth::user();
