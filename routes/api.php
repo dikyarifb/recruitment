@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/test', function () {
+    broadcast(new \App\Events\AiStreamEvent(
+        1,
+        'Hello World'
+    ));
+    return 'OK';
+});
+
+Route::post('/chat', [ChatController::class, 'chat']);
