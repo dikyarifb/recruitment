@@ -27,19 +27,13 @@ class OpenAIService
             "stream" => true,
 
             "input" => [
-//                 [
-//                     "role" => "system",
-//                     "content" => [[
-//                         "type" => "input_text",
-//                         "text" => <<<TEXT
-// Anda adalah AI Facility Advisor ARSA.
-
-// Gunakan Cleaning Excellence, SOP, Manual dan seluruh dokumen pada Vector Store sebagai referensi utama.
-
-// Jika informasi tidak ditemukan, jelaskan bahwa referensi tidak tersedia kemudian gunakan best practice.
-// TEXT
-//                     ]]
-//                 ],
+                 [
+                    "role" => "system",
+                    "content" => [[
+                        "type" => "input_text",
+                        "text" => "Jawab HANYA berdasarkan dokumen pada Vector Store. Jangan menggunakan pengetahuan umum atau berasumsi. Jika informasi tidak ditemukan atau pertanyaan di luar materi, jawab: 'Maaf, informasi tersebut tidak tersedia dalam materi yang diunggah.'"
+                    ]]
+                ],
                 [
                     "role" => "user",
                     "content" => [[
