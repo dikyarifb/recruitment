@@ -20,7 +20,7 @@ class OpenAIService
     public function stream($conversationId, $message)
     {
         set_time_limit(0);
-
+        $vectors = \DB::table('vector_store')->pluck('vector_id')->toArray();
         $payload = [
             "model" => "gpt-4.1",
 
@@ -45,9 +45,7 @@ class OpenAIService
 
             "tools" => [[
                 "type" => "file_search",
-                "vector_store_ids" => [
-                    env("OPENAI_VS_ID")
-                ]
+                "vector_store_ids" => $vectors
             ]]
         ];
 
